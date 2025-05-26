@@ -1,4 +1,4 @@
-name: Build Virastyar Word Add-in
+name: Build and Publish Virastyar
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup .NET Framework 4.8
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
       - name: Restore NuGet packages
@@ -21,10 +21,13 @@ jobs:
       - name: Build solution
         run: msbuild VirastyarWordAddin.sln /p:Configuration=Release
 
-      - name: Publish artifact
+      - name: Publish ClickOnce
+        run: msbuild VirastyarWordAddin\VirastyarWordAddin.csproj /t:Publish /p:Configuration=Release /p:PublishDir=publish\
+
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v3
         with:
           name: virastyar-installer
           path: |
-            VirastyarWordAddin\bin\Release\*.dll
-            VirastyarWordAddin\bin\Release\VirastyarWordAddin.vsto
+            publish\VirastyarWordAddin.vsto
+            publish\setup.exe     # اگر از bootstrapper تولید کردید
